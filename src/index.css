@@ -1,0 +1,14 @@
+@import 'tailwindcss';
+
+/* Brand tokens: Frontend lead to replace these once the style guide is agreed. */
+@theme {
+  --color-brand: #1d4ed8;
+  --color-brand-dark: #1e3a8a;
+  --color-ink: #0f172a;
+  --color-muted: #64748b;
+  --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  @apply bg-white text-ink antialiased;
+}
