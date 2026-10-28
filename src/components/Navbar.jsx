@@ -1,54 +1,92 @@
 import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
+import Icon from './Icon.jsx'
+import { Logo } from './ui.jsx'
+import ThemeToggle from './ThemeToggle.jsx'
 
 const links = [
   { to: '/services', label: 'Services' },
+  { to: '/talent', label: 'Hire talent' },
   { to: '/portfolio', label: 'Portfolio' },
   { to: '/process', label: 'Process' },
   { to: '/pricing', label: 'Pricing' },
   { to: '/about', label: 'About' },
+  { to: '/contact', label: 'Contact' },
 ]
 
-// TODO (Frontend): final styling, logo, and polish of the mobile menu.
 export default function Navbar() {
-  const [open, setOpen] = useState(false)
+  const location = useLocation()
+  const [openOn, setOpenOn] = useState(null)
+  const open = openOn === location.pathname
+  const setOpen = (update) => setOpenOn((prev) => ((typeof update === 'function' ? update(prev === location.pathname) : update) ? location.pathname : null))
 
   return (
-    <header className="border-b border-slate-200 bg-white">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link to="/" className="text-xl font-bold text-brand">
-          Lephas
+    <header className="sticky top-0 z-40 bg-base/90 backdrop-blur">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4" aria-label="Main">
+        <Link to="/" aria-label="Lephas home" className="shrink-0">
+          <Logo size={42} />
         </Link>
 
-        <button
-          type="button"
-          className="md:hidden"
-          aria-label="Toggle menu"
-          aria-expanded={open}
-          onClick={() => setOpen((value) => !value)}
-        >
-          Menu
-        </button>
-
-        <ul className={`${open ? 'flex' : 'hidden'} absolute left-0 right-0 top-16 flex-col gap-4 bg-white p-4 md:static md:flex md:flex-row md:items-center md:p-0`}>
+        <ul className="hidden items-center gap-1 lg:flex">
           {links.map((link) => (
             <li key={link.to}>
-              <NavLink to={link.to} onClick={() => setOpen(false)}>
+              <NavLink
+                to={link.to}
+                className={({ isActive }) =>
+                  `rounded-xl px-3 py-2 text-sm font-semibold transition ${isActive ? 'neu-inset-sm text-slate' : 'text-muted hover:text-slate'}`
+                }
+              >
                 {link.label}
               </NavLink>
             </li>
           ))}
-          <li>
-            <Link
-              to="/contact"
-              onClick={() => setOpen(false)}
-              className="rounded bg-brand px-4 py-2 text-white"
-            >
-              Request a Quote
-            </Link>
-          </li>
         </ul>
+
+        <div className="hidden items-center gap-3 lg:flex">
+          <ThemeToggle />
+          <Link to="/start" className="btn btn-primary btn-sm">
+            Start a project
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-3 lg:hidden">
+          <ThemeToggle />
+        <button
+          type="button"
+          className="btn btn-sm lg:hidden"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
+          aria-controls="mobile-menu"
+          onClick={() => setOpen((value) => !value)}
+        >
+          <Icon name={open ? 'close' : 'menu'} size={20} />
+        </button>
+        </div>
       </nav>
+
+      {open && (
+        <div id="mobile-menu" className="px-4 pb-6 lg:hidden">
+          <ul className="neu flex flex-col gap-1 p-4">
+            {links.map((link) => (
+              <li key={link.to}>
+                <NavLink
+                  to={link.to}
+                  className={({ isActive }) =>
+                    `block rounded-xl px-4 py-3 font-semibold ${isActive ? 'neu-inset-sm text-slate' : 'text-muted'}`
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              </li>
+            ))}
+            <li className="pt-3">
+              <Link to="/start" className="btn btn-primary w-full">
+                Start a project
+              </Link>
+            </li>
+          </ul>
+        </div>
+      )}
     </header>
   )
 }

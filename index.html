@@ -4,11 +4,28 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#e7eef5" />
     <meta
       name="description"
-      content="Lephas builds custom websites for businesses: e-commerce stores, company sites and web apps."
+      content="Lephas Company Ltd builds websites, web and mobile apps, e-commerce stores, POS systems and APIs. Start a project or hire our developers."
     />
-    <title>Lephas | Custom websites for your business</title>
+    <meta property="og:title" content="Lephas Company Ltd | Transforming the future" />
+    <meta property="og:description" content="Custom websites, apps and business systems. Start a project or hire a Lephas developer." />
+    <meta property="og:image" content="/logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      try {
+        var saved = localStorage.getItem('lephas.theme')
+        var theme = saved === 'dark' ? 'dark' : 'light'
+        document.documentElement.dataset.theme = theme
+        if (theme === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#2f3841')
+      } catch (e) {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
+    <title>Lephas Company Ltd | Transforming the future</title>
   </head>
   <body>
     <div id="root"></div>

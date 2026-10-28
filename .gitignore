@@ -23,6 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
-# Local environment variables
+# Local environment variables and secrets (never commit these)
 .env
-.env.local
+.env.*
+!.env.example
+*.pem
+.vercel
