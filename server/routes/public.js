@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { many, one } from '../db.js'
-import { notFound } from '../http.js'
+import { notFound, siteUrl } from '../http.js'
 import { isUuid } from '../validate.js'
 import {
   PROJECT_SELECT,
@@ -136,7 +136,48 @@ async function getMedia({ params, res }) {
   res.end(row.data)
 }
 
+const STATIC_PAGES = ['/', '/services', '/talent', '/portfolio', '/process', '/pricing', '/about', '/contact', '/start', '/privacy', '/terms']
+
+function xmlEscape(value) {
+  return String(value).replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' })[c])
+}
+
+function sendText(res, type, body) {
+  res.statusCode = 200
+  res.setHeader('Content-Type', `${type}; charset=utf-8`)
+  res.setHeader('Cache-Control', 'public, max-age=3600')
+  res.end(body)
+}
+
+async function sitemap({ req, res }) {
+  const base = siteUrl(req)
+  const [members, projects] = await Promise.all([
+    many('select slug, updated_at from team_members where published order by sort_order, full_name'),
+    many('select slug, updated_at from projects where published order by created_at desc'),
+  ])
+  const entries = [
+    ...STATIC_PAGES.map((path) => ({ loc: `${base}${path}` })),
+    ...members.map((m) => ({ loc: `${base}/talent/${m.slug}`, lastmod: m.updated_at })),
+    ...projects.map((p) => ({ loc: `${base}/portfolio/${p.slug}`, lastmod: p.updated_at })),
+  ]
+  const urls = entries
+    .map((e) => `  <url><loc>${xmlEscape(e.loc)}</loc>${e.lastmod ? `<lastmod>${new Date(e.lastmod).toISOString().slice(0, 10)}</lastmod>` : ''}</url>`)
+    .join('\n')
+  sendText(res, 'application/xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`)
+}
+
+async function robots({ req, res }) {
+  const base = siteUrl(req)
+  sendText(
+    res,
+    'text/plain',
+    ['User-agent: *', 'Allow: /', 'Disallow: /admin', 'Disallow: /requests', 'Disallow: /api/', '', `Sitemap: ${base}/sitemap.xml`, ''].join('\n'),
+  )
+}
+
 export default [
+  { method: 'GET', path: '/api/seo/sitemap', handler: sitemap },
+  { method: 'GET', path: '/api/seo/robots', handler: robots },
   { method: 'GET', path: '/api/health', handler: health },
   { method: 'GET', path: '/api/site', handler: site },
   { method: 'GET', path: '/api/services', handler: listServices },

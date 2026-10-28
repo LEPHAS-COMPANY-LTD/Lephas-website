@@ -122,13 +122,19 @@ migration that has already been applied.
 1. Create a Postgres database (Vercel Storage, Neon or similar) and copy its connection string.
 2. Import the repo in Vercel (framework preset: Vite, build command `npm run build`, output `dist`).
 3. Under Project Settings, Environment Variables, add: `DATABASE_URL`, `AUTH_SECRET`, `SITE_URL`
-   (e.g. `https://lephas.com`), and for emails `EMAIL_API_KEY`, `EMAIL_FROM`, `TEAM_NOTIFICATION_EMAIL`.
+   (e.g. `https://lephas.com`, also used for share previews and the sitemap), and for emails `EMAIL_API_KEY`,
+   `EMAIL_FROM`, `TEAM_NOTIFICATION_EMAIL`.
 4. From your computer, with `DATABASE_URL` in `.env` pointing at that database, run `npm run db:migrate`,
    `npm run db:seed` and `npm run create-cto`.
 
 `vercel.json` sends every `/api/...` request to `api/router.js` and every other path to the React app.
 Emails are sent through Resend. Without `EMAIL_API_KEY` the site still works: staff can copy the client's private link
 from the request page and send it by WhatsApp or SMS.
+
+## Automatic checks
+
+`.github/workflows/ci.yml` runs lint, the production build and the API tests (against a temporary Postgres) on every
+push to `main` or `Dev` and on every pull request. A red cross on GitHub means something is broken; open the run to see why.
 
 ## Versions
 

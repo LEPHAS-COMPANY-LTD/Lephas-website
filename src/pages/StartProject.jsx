@@ -384,7 +384,15 @@ export default function StartProject() {
         </div>
       </form>
       <p className="mt-6 text-center text-xs text-muted">
-        We only use your details to reply to this request. No spam, ever.
+        We only use your details to reply to this request. No spam, ever. By sending it you agree to our{' '}
+        <Link to="/privacy" className="font-semibold underline">
+          privacy policy
+        </Link>{' '}
+        and{' '}
+        <Link to="/terms" className="font-semibold underline">
+          terms
+        </Link>
+        .
       </p>
     </div>
   )

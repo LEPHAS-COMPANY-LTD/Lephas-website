@@ -90,6 +90,13 @@ export default function Contact() {
               {state.error.message}
             </p>
           )}
+          <p className="text-xs text-muted">
+            By sending this message you agree to our{' '}
+            <Link to="/privacy" className="font-semibold underline">
+              privacy policy
+            </Link>
+            .
+          </p>
           <button type="submit" className="btn btn-primary" disabled={state.sending}>
             {state.sending ? 'Sending…' : 'Send message'}
             {!state.sending && <Icon name="send" size={18} />}

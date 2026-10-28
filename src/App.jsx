@@ -16,6 +16,7 @@ import StartProject from './pages/StartProject.jsx'
 import RequestStatus from './pages/RequestStatus.jsx'
 import RequestLookup from './pages/RequestLookup.jsx'
 import DocumentView from './pages/DocumentView.jsx'
+import { Privacy, Terms } from './pages/Legal.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'))
@@ -46,6 +47,8 @@ export default function App() {
         <Route path="/requests" element={<RequestLookup />} />
         <Route path="/requests/:reference" element={<RequestStatus />} />
         <Route path="/requests/:reference/documents/:id" element={<DocumentView />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

@@ -11,4 +11,8 @@ MAJOR for big changes, MINOR for new features, PATCH for fixes. Update `version`
 - Quotations and invoices: create from a request, send, client accepts online, convert to invoice, record payments, print or save as PDF.
 - Admin area with roles: CTO (only one), Admin, Staff. Only the CTO manages team profiles, staff accounts and settings.
 - Neumorphism design in the logo colours, light mode by default with an optional dark mode.
+- Privacy policy and terms pages, linked from the footer and the request forms. The data protection registration number can be added in Contact settings once registered.
+- SEO: `robots.txt`, a sitemap that includes team profiles and projects, and a share image for WhatsApp, LinkedIn and other social links.
+- Security headers on every page.
 - PostgreSQL database with migrations, ready to deploy on Vercel.
+- GitHub Actions runs lint, build and API tests on every push and pull request.

@@ -480,6 +480,7 @@ async function writeSettings({ req }) {
     .text('quote_terms', { max: 1500, label: 'Quotation terms', multiline: true })
     .integer('invoice_due_days', { min: 0, max: 365, label: 'Days to pay' })
     .text('default_tax_label', { max: 30, label: 'Tax name' })
+    .text('data_protection_registration', { max: 80, label: 'Data protection registration number' })
   const taxRaw = body.default_tax_rate
   if (taxRaw !== undefined && taxRaw !== null && taxRaw !== '') {
     const rate = Number(taxRaw)

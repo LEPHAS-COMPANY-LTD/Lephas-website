@@ -481,6 +481,26 @@ describe('Lephas API', { skip }, () => {
     assert.equal(gone.status, 200)
   })
 
+  test('robots.txt and sitemap list public pages only', async () => {
+    const robots = await fetch(`${base}/api/seo/robots`)
+    const robotsText = await robots.text()
+    assert.equal(robots.status, 200)
+    assert.match(robotsText, /Disallow: \/admin/)
+    assert.match(robotsText, /Sitemap: http:\/\/127\.0\.0\.1:\d+\/sitemap\.xml/)
+    const sitemap = await fetch(`${base}/api/seo/sitemap`)
+    const xml = await sitemap.text()
+    assert.equal(sitemap.headers.get('content-type'), 'application/xml; charset=utf-8')
+    assert.match(xml, /\/talent\/jane-developer/)
+    assert.match(xml, /\/portfolio\/shop-online/)
+    assert.match(xml, /\/privacy</)
+    assert.doesNotMatch(xml, /hidden-person/)
+  })
+
+  test('health reports the website version', async () => {
+    const res = await api('/api/health')
+    assert.match(res.data.version, /^\d+\.\d+\.\d+$/)
+  })
+
   test('logout clears the session cookie', async () => {
     const res = await api('/api/auth/logout', { method: 'POST', cookie: staff })
     assert.match(res.headers.get('set-cookie'), /Max-Age=0/)

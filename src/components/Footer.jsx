@@ -134,9 +134,17 @@ export default function Footer() {
               v{import.meta.env.VITE_APP_VERSION}
             </span>
           </p>
-          <Link to="/admin" className="hover:text-slate">
-            Team login
-          </Link>
+          <span className="flex flex-wrap gap-4">
+            <Link to="/privacy" className="hover:text-slate">
+              Privacy policy
+            </Link>
+            <Link to="/terms" className="hover:text-slate">
+              Terms
+            </Link>
+            <Link to="/admin" className="hover:text-slate">
+              Team login
+            </Link>
+          </span>
         </div>
       </div>
     </footer>

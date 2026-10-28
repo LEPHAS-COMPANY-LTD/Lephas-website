@@ -19,6 +19,7 @@ export const SETTING_KEYS = [
   'invoice_due_days',
   'default_tax_rate',
   'default_tax_label',
+  'data_protection_registration',
 ]
 
 export const mediaUrl = (id, fallback) => (id ? `/api/media/${id}` : fallback || null)
