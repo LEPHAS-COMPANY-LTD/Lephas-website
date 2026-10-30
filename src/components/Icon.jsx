@@ -163,6 +163,7 @@ const paths = {
       <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
     </>
   ),
+  download: <path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14" />,
   send: <path d="M4 12l16-8-6 16-2.5-6.5z M11.5 13.5L20 4" />,
   x: <path d="M4 4l16 16M20 4L4 20" />,
   sun: (

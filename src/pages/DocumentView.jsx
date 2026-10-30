@@ -41,10 +41,20 @@ export default function DocumentView() {
           <Icon name="back" size={18} />
           Back to request {reference}
         </Link>
-        <button type="button" className="btn btn-sm" onClick={printDocument}>
-          <Icon name="receipt" size={16} />
-          Print or save as PDF
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <a
+            className="btn btn-sm btn-primary"
+            href={`/api/inquiries/${encodeURIComponent(reference)}/documents/${encodeURIComponent(id)}/pdf?token=${encodeURIComponent(token)}`}
+            download
+          >
+            <Icon name="download" size={16} />
+            Download PDF
+          </a>
+          <button type="button" className="btn btn-sm" onClick={printDocument}>
+            <Icon name="receipt" size={16} />
+            Print
+          </button>
+        </div>
       </div>
 
       {canRespond && (

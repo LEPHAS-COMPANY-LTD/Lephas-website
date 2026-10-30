@@ -5,6 +5,7 @@ import { rateLimit } from '../rateLimit.js'
 import { Validator, isUuid } from '../validate.js'
 import { emailLayout, sendEmail } from '../email.js'
 import { getSettings } from '../content.js'
+import { documentFilename, renderDocumentPdf } from '../pdf.js'
 import {
   BILLING_STATUS_LABELS,
   PAYMENT_METHODS,
@@ -269,6 +270,13 @@ async function sendDocument({ req, params }) {
   const link = token ? `${siteUrl(req)}/requests/${encodeURIComponent(inquiry.reference)}/documents/${doc.id}?token=${encodeURIComponent(token)}` : null
   let delivery = { sent: false }
   if (link) {
+    let attachments
+    try {
+      const pdf = await renderDocumentPdf(doc, await getSettings())
+      attachments = [{ filename: documentFilename(doc), content: pdf.toString('base64'), contentType: 'application/pdf' }]
+    } catch (error) {
+      console.error('[pdf] could not create the PDF, sending the email without it:', error?.message || error)
+    }
     const amount = formatMoney(doc.total_cents, doc.currency)
     delivery = await sendEmail({
       to: doc.client.email,
@@ -281,10 +289,12 @@ async function sendDocument({ req, params }) {
           doc.kind === 'quote'
             ? `Here is our quotation for "${doc.title}". Total: ${amount}${doc.due_date ? `, valid until ${doc.due_date}` : ''}. You can accept or decline it online.`
             : `Here is your invoice for "${doc.title}". Amount due: ${amount}${doc.due_date ? `, due by ${doc.due_date}` : ''}. Payment details are on the invoice.`,
+          ...(attachments ? [`The ${doc.kind === 'quote' ? 'quotation' : 'invoice'} is attached as a PDF you can download, print or share.`] : []),
         ],
         { label: doc.kind === 'quote' ? 'View quotation' : 'View invoice', url: link },
       ),
       text: `${label} ${doc.number}: ${amount}. View it here: ${link}`,
+      attachments,
     })
   }
   return { document: doc, email_sent: delivery.sent, client_link: link }
@@ -407,6 +417,32 @@ async function clientDocument({ req, params, query: q }) {
   return { document: await loadDocument(row.id), settings: await getSettings(), request: { reference: inquiry.reference } }
 }
 
+function sendPdf(res, buffer, filename) {
+  res.statusCode = 200
+  res.setHeader('Content-Type', 'application/pdf')
+  res.setHeader('Content-Length', buffer.length)
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+  res.setHeader('Cache-Control', 'private, no-store')
+  res.end(buffer)
+}
+
+async function clientDocumentPdf({ req, res, params, query: q }) {
+  const token = q.get('token') || req.headers['x-access-token']
+  const inquiry = await loadForClient(params.reference, token)
+  if (!isUuid(params.id)) throw notFound('Document not found.')
+  const row = await one(`select id from billing_documents where id = $1 and inquiry_id = $2 and status <> 'draft'`, [params.id, inquiry.id])
+  if (!row) throw notFound('Document not found.')
+  const doc = await loadDocument(row.id)
+  sendPdf(res, await renderDocumentPdf(doc, await getSettings()), documentFilename(doc))
+}
+
+async function adminDocumentPdf({ req, res, params }) {
+  await requireUser(req, EVERYONE)
+  const existing = await requireDocument(params.id)
+  const doc = await loadDocument(existing.id)
+  sendPdf(res, await renderDocumentPdf(doc, await getSettings()), documentFilename(doc))
+}
+
 async function clientDecision({ req, params }) {
   const body = await readJsonBody(req)
   await rateLimit(`decision:${sha256(clientIp(req)).slice(0, 24)}`, 20, 3600)
@@ -463,7 +499,9 @@ export default [
   { method: 'POST', path: '/api/admin/billing/:id/void', handler: voidInvoice },
   { method: 'POST', path: '/api/admin/billing/:id/payments', handler: addPayment },
   { method: 'DELETE', path: '/api/admin/billing/:id/payments/:paymentId', handler: deletePayment },
+  { method: 'GET', path: '/api/admin/billing/:id/pdf', handler: adminDocumentPdf },
   { method: 'GET', path: '/api/inquiries/:reference/documents/:id', handler: clientDocument },
+  { method: 'GET', path: '/api/inquiries/:reference/documents/:id/pdf', handler: clientDocumentPdf },
   { method: 'POST', path: '/api/inquiries/:reference/documents/:id/decision', handler: clientDecision },
 ]
 

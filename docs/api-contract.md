@@ -27,6 +27,7 @@ Every `POST`, `PUT`, `PATCH` and `DELETE` request must send the header `X-Lephas
 | `POST /api/inquiries/:reference/messages` | Client reply `{ token, message }` |
 | `POST /api/inquiries/lookup` | Email all request links to `{ email }` |
 | `GET /api/inquiries/:reference/documents/:id?token=` | A sent quotation or invoice for that request |
+| `GET /api/inquiries/:reference/documents/:id/pdf?token=` | Download that quotation or invoice as a PDF |
 | `POST /api/inquiries/:reference/documents/:id/decision` | Client accepts or declines a quotation `{ token, decision: accept \| decline, note }` |
 
 ### `POST /api/inquiries`
@@ -96,7 +97,8 @@ Amounts are stored in cents. Totals are always recalculated on the server: subto
 | `POST /api/admin/billing` | cto, admin | Create a draft `{ kind, inquiry_id, title, client_*, currency, issue_date, due_date, discount, tax_label, tax_rate, notes, terms, items: [{ description, quantity, unit, unit_price }] }` |
 | `PUT /api/admin/billing/:id` | cto, admin | Edit a draft (sent documents are locked) |
 | `DELETE /api/admin/billing/:id` | cto, admin | Delete a draft |
-| `POST /api/admin/billing/:id/send` | cto, admin | Number it, mark sent, email the client |
+| `POST /api/admin/billing/:id/send` | cto, admin | Number it, mark sent, email the client with the PDF attached |
+| `GET /api/admin/billing/:id/pdf` | all staff | Download the document as a PDF |
 | `POST /api/admin/billing/:id/decision` | cto, admin | Record a quotation decision taken by phone `{ decision: accepted \| declined }` |
 | `POST /api/admin/billing/:id/convert` | cto, admin | New invoice draft from a quotation |
 | `POST /api/admin/billing/:id/duplicate` | cto, admin | Copy as a new draft |

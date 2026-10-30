@@ -590,6 +590,64 @@ describe('Lephas API', { skip }, () => {
     }
   })
 
+  test('a sent quotation is emailed with a PDF attached, and the client can download it', async () => {
+    const smtp = await startFakeSmtp()
+    Object.assign(process.env, { SMTP_HOST: '127.0.0.1', SMTP_PORT: String(smtp.port), SMTP_USER: 'lephas.test@gmail.com', SMTP_PASS: 'app-password' })
+    try {
+      const created = await api('/api/inquiries', {
+        method: 'POST',
+        headers: freshIp(),
+        body: { kind: 'project', service_id: services[0].id, full_name: 'Pdf Client', email: 'pdf.client@example.com', details: 'Please send a quotation as a PDF.' },
+      })
+      const { reference, token } = created.data
+      const inquiry = (await api('/api/admin/inquiries?q=pdf.client@example.com', { cookie: cto })).data.inquiries[0]
+      const draft = await api('/api/admin/billing', {
+        method: 'POST',
+        cookie: cto,
+        body: {
+          kind: 'quote',
+          inquiry_id: inquiry.id,
+          title: 'Shop website',
+          client_name: 'Pdf Client',
+          client_email: 'pdf.client@example.com',
+          currency: 'KES',
+          due_date: '2099-01-01',
+          items: [{ description: 'Design and build', quantity: 1, unit: 'project', unit_price: '60000' }],
+        },
+      })
+      const id = draft.data.document.id
+      smtp.mails.length = 0
+
+      const draftPdf = await fetch(`${base}/api/inquiries/${reference}/documents/${id}/pdf?token=${token}`)
+      assert.equal(draftPdf.status, 404, 'clients cannot download drafts')
+
+      const sent = await api(`/api/admin/billing/${id}/send`, { method: 'POST', cookie: cto })
+      assert.equal(sent.status, 200)
+      const number = sent.data.document.number
+      const mail = smtp.mails.find((m) => m.rcpt.some((r) => r.includes('pdf.client@example.com')))
+      assert.ok(mail, 'the client got the email')
+      assert.match(mail.body, /Content-Type: application\/pdf/i)
+      assert.match(mail.body, new RegExp(`Lephas-Quotation-${number}\\.pdf`))
+
+      const pdf = await fetch(`${base}/api/inquiries/${reference}/documents/${id}/pdf?token=${token}`)
+      assert.equal(pdf.status, 200)
+      assert.equal(pdf.headers.get('content-type'), 'application/pdf')
+      assert.match(pdf.headers.get('content-disposition'), /attachment; filename="Lephas-Quotation-QT-/)
+      assert.equal(Buffer.from(await pdf.arrayBuffer()).subarray(0, 5).toString(), '%PDF-')
+
+      const wrongToken = await fetch(`${base}/api/inquiries/${reference}/documents/${id}/pdf?token=nope`)
+      assert.notEqual(wrongToken.status, 200)
+
+      const noSession = await fetch(`${base}/api/admin/billing/${id}/pdf`)
+      assert.equal(noSession.status, 401)
+      const staffPdf = await fetch(`${base}/api/admin/billing/${id}/pdf`, { headers: { Cookie: staff } })
+      assert.equal(staffPdf.status, 200)
+    } finally {
+      for (const key of ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS']) delete process.env[key]
+      smtp.server.close()
+    }
+  })
+
   test('if RabbitMQ is unreachable, emails are sent directly instead', async () => {
     const smtp = await startFakeSmtp()
     Object.assign(process.env, {

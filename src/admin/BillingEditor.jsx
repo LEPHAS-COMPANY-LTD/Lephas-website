@@ -469,8 +469,11 @@ export default function BillingEditor() {
         </AdminHeader>
 
         <div className="neu mb-8 flex flex-wrap gap-3 p-4">
+          <a className="btn btn-sm" href={`/api/admin/billing/${doc.id}/pdf`} download>
+            <Icon name="download" size={16} /> Download PDF
+          </a>
           <button type="button" className="btn btn-sm" onClick={printDocument}>
-            <Icon name="receipt" size={16} /> Print / PDF
+            <Icon name="receipt" size={16} /> Print
           </button>
           {canManage && (
             <>

@@ -63,6 +63,7 @@ async function sendWithSmtp(message) {
     subject: message.subject,
     html: message.html,
     text: message.text,
+    attachments: message.attachments?.map((a) => ({ filename: a.filename, content: a.content, encoding: 'base64', contentType: a.contentType })),
   })
   return { sent: true }
 }
@@ -78,6 +79,7 @@ async function sendWithResend(message) {
       html: message.html,
       text: message.text,
       reply_to: message.replyTo,
+      attachments: message.attachments?.map((a) => ({ filename: a.filename, content: a.content })),
     }),
   })
   if (!response.ok) {
@@ -87,7 +89,7 @@ async function sendWithResend(message) {
   return { sent: true }
 }
 
-export async function deliverEmail({ to, subject, html, text, replyTo }) {
+export async function deliverEmail({ to, subject, html, text, replyTo, attachments }) {
   if (!to) return { sent: false, reason: 'no recipient' }
   const provider = emailProvider()
   if (provider === 'none') {
@@ -95,7 +97,7 @@ export async function deliverEmail({ to, subject, html, text, replyTo }) {
     return { sent: false, reason: 'not configured' }
   }
   try {
-    const message = { to, subject, html, text, replyTo }
+    const message = { to, subject, html, text, replyTo, attachments }
     return provider === 'smtp' ? await sendWithSmtp(message) : await sendWithResend(message)
   } catch (error) {
     console.error(`[email] failed to send "${subject}" via ${provider}:`, error?.message || error)

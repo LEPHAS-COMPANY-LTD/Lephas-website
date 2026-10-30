@@ -22,4 +22,7 @@ MAJOR for big changes, MINOR for new features, PATCH for fixes. Update `version`
 - Optional RabbitMQ email queue. With `RABBITMQ_URL` set, the website puts each email on the `lephas.emails` queue
   and returns at once; `npm run email-worker` sends them, retrying up to 4 times, and moves emails that still fail
   to `lephas.emails.failed`. If RabbitMQ is down, emails are sent directly so nothing is lost.
+- Quotations and invoices are emailed with a professional PDF attached (logo, client details, items, totals, payment
+  instructions, notes and terms). Clients can also press **Download PDF** on their quotation or invoice page, and staff
+  can download it from the admin area.
 - A failing mail server never blocks a client's request; it is saved and shown in the dashboard either way.

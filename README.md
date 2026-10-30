@@ -95,11 +95,11 @@ Log in at http://localhost:5173/admin with the CTO account, then:
    (for example after a client hires a developer). Client details, the service or the developer's hourly rate are
    filled in for you.
 2. Edit the lines, discount and tax, preview it, then **Save and send to client**. It gets a number such as
-   `QT-2026-0001` and the client receives a link.
+   `QT-2026-0001` and the client receives an email with the PDF attached and a link to view it online.
 3. The client opens it from their request page and presses **Accept** or **Decline**.
 4. Press **Convert to invoice** on an accepted quotation, send it, then **Record payment** as money arrives
    (bank, mobile money, card or cash). The invoice shows Partially paid, Paid or Overdue.
-5. Anyone can press **Print or save as PDF** for a clean A4 copy.
+5. The client and the team can press **Download PDF** (or **Print**) at any time for a clean A4 copy.
 
 ## Scripts
 
