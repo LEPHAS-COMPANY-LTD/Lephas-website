@@ -164,7 +164,7 @@ push to `main` or `Dev` and on every pull request. A red cross on GitHub means s
 
 ## Versions
 
-The current version is in `package.json` (now **1.0.1**) and is shown in the website footer, the admin sidebar
+The current version is in `package.json` (now **1.0.0**) and is shown in the website footer, the admin sidebar
 and `GET /api/health`. For each release, raise the version in `package.json` and add a section to `CHANGELOG.md`.
 
 ## Git rules
