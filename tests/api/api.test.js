@@ -1,6 +1,7 @@
 import { after, before, describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import http from 'node:http'
+import net from 'node:net'
 
 const TEST_DB = process.env.TEST_DATABASE_URL
 const skip = !TEST_DB && 'Set TEST_DATABASE_URL to an empty Postgres database to run the API tests.'
@@ -35,6 +36,50 @@ async function login(email, password) {
   const res = await api('/api/auth/login', { method: 'POST', body: { email, password } })
   assert.equal(res.status, 200, JSON.stringify(res.data))
   return res.headers.get('set-cookie').split(';')[0]
+}
+
+
+function startFakeSmtp() {
+  const mails = []
+  const server = net.createServer((socket) => {
+    let data = false
+    let buffer = ''
+    let current = { rcpt: [], body: '' }
+    socket.write('220 fake ESMTP\r\n')
+    socket.on('data', (chunk) => {
+      buffer += chunk.toString('utf8')
+      let index
+      while ((index = buffer.indexOf('\r\n')) !== -1) {
+        const line = buffer.slice(0, index)
+        buffer = buffer.slice(index + 2)
+        if (data) {
+          if (line === '.') {
+            data = false
+            mails.push(current)
+            current = { rcpt: [], body: '' }
+            socket.write('250 queued\r\n')
+          } else current.body += `${line}\n`
+          continue
+        }
+        const cmd = line.toUpperCase()
+        if (cmd.startsWith('EHLO') || cmd.startsWith('HELO')) socket.write('250-fake\r\n250 AUTH PLAIN LOGIN\r\n')
+        else if (cmd.startsWith('AUTH')) socket.write('235 ok\r\n')
+        else if (cmd.startsWith('MAIL FROM')) {
+          current.from = line
+          socket.write('250 ok\r\n')
+        } else if (cmd.startsWith('RCPT TO')) {
+          current.rcpt.push(line)
+          socket.write('250 ok\r\n')
+        } else if (cmd === 'DATA') {
+          data = true
+          socket.write('354 go\r\n')
+        } else if (cmd === 'QUIT') {
+          socket.end('221 bye\r\n')
+        } else socket.write('250 ok\r\n')
+      }
+    })
+  })
+  return new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve({ server, mails, port: server.address().port })))
 }
 
 let ip = 0
@@ -499,6 +544,109 @@ describe('Lephas API', { skip }, () => {
   test('health reports the website version', async () => {
     const res = await api('/api/health')
     assert.match(res.data.version, /^\d+\.\d+\.\d+$/)
+  })
+
+  test('with Gmail (SMTP) configured, a quote request emails the client and the team', async () => {
+    const smtp = await startFakeSmtp()
+    Object.assign(process.env, {
+      SMTP_HOST: '127.0.0.1',
+      SMTP_PORT: String(smtp.port),
+      SMTP_USER: 'lephas.test@gmail.com',
+      SMTP_PASS: 'app-password',
+      TEAM_NOTIFICATION_EMAIL: 'team@lephas.test',
+    })
+    try {
+      const res = await api('/api/inquiries', {
+        method: 'POST',
+        headers: freshIp(),
+        body: { kind: 'project', service_id: services[1].id, full_name: 'Mail Client', email: 'mail.client@example.com', details: 'Please quote a delivery app for our shop.' },
+      })
+      assert.equal(res.status, 201, JSON.stringify(res.data))
+      assert.equal(smtp.mails.length, 2)
+      const toClient = smtp.mails.find((m) => m.rcpt.some((r) => r.includes('mail.client@example.com')))
+      const toTeam = smtp.mails.find((m) => m.rcpt.some((r) => r.includes('team@lephas.test')))
+      assert.ok(toClient && toTeam)
+      assert.match(toClient.from, /lephas\.test@gmail\.com/)
+      assert.match(toClient.body, new RegExp(res.data.reference))
+      assert.match(toClient.body, /Lephas Company Ltd/)
+      assert.match(toTeam.body, /Reply-To: mail\.client@example\.com/i)
+    } finally {
+      for (const key of ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'TEAM_NOTIFICATION_EMAIL']) delete process.env[key]
+      smtp.server.close()
+    }
+  })
+
+  test('a broken mail server never blocks the request', async () => {
+    Object.assign(process.env, { SMTP_HOST: '127.0.0.1', SMTP_PORT: '9', SMTP_USER: 'x@gmail.com', SMTP_PASS: 'y' })
+    try {
+      const res = await api('/api/inquiries', {
+        method: 'POST',
+        headers: freshIp(),
+        body: { kind: 'contact', full_name: 'Still Saved', email: 'saved@example.com', details: 'This must be saved even if email fails.' },
+      })
+      assert.equal(res.status, 201)
+    } finally {
+      for (const key of ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS']) delete process.env[key]
+    }
+  })
+
+  test('if RabbitMQ is unreachable, emails are sent directly instead', async () => {
+    const smtp = await startFakeSmtp()
+    Object.assign(process.env, {
+      RABBITMQ_URL: 'amqp://guest:guest@127.0.0.1:9',
+      SMTP_HOST: '127.0.0.1',
+      SMTP_PORT: String(smtp.port),
+      SMTP_USER: 'lephas.test@gmail.com',
+      SMTP_PASS: 'app-password',
+    })
+    try {
+      const res = await api('/api/inquiries', {
+        method: 'POST',
+        headers: freshIp(),
+        body: { kind: 'contact', full_name: 'Fallback Client', email: 'fallback@example.com', details: 'The queue is down but I still get my email.' },
+      })
+      assert.equal(res.status, 201)
+      assert.ok(smtp.mails.some((m) => m.rcpt.some((r) => r.includes('fallback@example.com'))))
+    } finally {
+      for (const key of ['RABBITMQ_URL', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS']) delete process.env[key]
+      smtp.server.close()
+    }
+  })
+
+  test('with RabbitMQ, emails are queued and the worker sends them', { skip: !process.env.TEST_RABBITMQ_URL && 'Set TEST_RABBITMQ_URL to run the queue test.' }, async () => {
+    const { spawn } = await import('node:child_process')
+    const smtp = await startFakeSmtp()
+    const env = {
+      RABBITMQ_URL: process.env.TEST_RABBITMQ_URL,
+      EMAIL_QUEUE: `lephas.emails.test.${process.pid}`,
+      SMTP_HOST: '127.0.0.1',
+      SMTP_PORT: String(smtp.port),
+      SMTP_USER: 'lephas.test@gmail.com',
+      SMTP_PASS: 'app-password',
+      TEAM_NOTIFICATION_EMAIL: 'team@lephas.test',
+    }
+    Object.assign(process.env, env)
+    let worker
+    try {
+      const res = await api('/api/inquiries', {
+        method: 'POST',
+        headers: freshIp(),
+        body: { kind: 'project', service_id: services[0].id, full_name: 'Queued Client', email: 'queued@example.com', details: 'Please quote a website, sent through the queue.' },
+      })
+      assert.equal(res.status, 201)
+      assert.equal(smtp.mails.length, 0, 'nothing is sent until the worker runs')
+
+      worker = spawn(process.execPath, ['scripts/email-worker.js'], { env: { ...process.env, ...env }, stdio: process.env.DEBUG_WORKER ? 'inherit' : 'ignore' })
+      const deadline = Date.now() + 15000
+      while (smtp.mails.length < 2 && Date.now() < deadline) await new Promise((r) => setTimeout(r, 200))
+      assert.equal(smtp.mails.length, 2)
+      assert.ok(smtp.mails.some((m) => m.rcpt.some((r) => r.includes('queued@example.com'))))
+      assert.ok(smtp.mails.some((m) => m.rcpt.some((r) => r.includes('team@lephas.test'))))
+    } finally {
+      worker?.kill('SIGTERM')
+      for (const key of Object.keys(env)) delete process.env[key]
+      smtp.server.close()
+    }
   })
 
   test('logout clears the session cookie', async () => {

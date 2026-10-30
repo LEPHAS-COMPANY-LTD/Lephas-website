@@ -1,3 +1,6 @@
+import nodemailer from 'nodemailer'
+import { publishEmail, queueEnabled } from './queue.js'
+
 const escapeHtml = (value) =>
   String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
 
@@ -18,27 +21,97 @@ export function emailLayout(title, paragraphs, action) {
 </div>`
 }
 
-export async function sendEmail({ to, subject, html, text, replyTo }) {
-  const apiKey = process.env.EMAIL_API_KEY
-  const from = process.env.EMAIL_FROM || 'Lephas <onboarding@resend.dev>'
+export function emailProvider() {
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) return 'smtp'
+  if (process.env.EMAIL_API_KEY) return 'resend'
+  return 'none'
+}
+
+let transporter = null
+let transporterKey = ''
+
+function smtpTransport() {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com'
+  const port = Number(process.env.SMTP_PORT || 465)
+  const key = `${host}:${port}:${process.env.SMTP_USER}`
+  if (!transporter || transporterKey !== key) {
+    transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
+    })
+    transporterKey = key
+  }
+  return transporter
+}
+
+function fromAddress(provider) {
+  if (process.env.EMAIL_FROM) return process.env.EMAIL_FROM
+  if (provider === 'smtp') return `Lephas Company Ltd <${process.env.SMTP_USER}>`
+  return 'Lephas <onboarding@resend.dev>'
+}
+
+async function sendWithSmtp(message) {
+  await smtpTransport().sendMail({
+    from: fromAddress('smtp'),
+    to: message.to,
+    replyTo: message.replyTo,
+    subject: message.subject,
+    html: message.html,
+    text: message.text,
+  })
+  return { sent: true }
+}
+
+async function sendWithResend(message) {
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${process.env.EMAIL_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: fromAddress('resend'),
+      to: message.to,
+      subject: message.subject,
+      html: message.html,
+      text: message.text,
+      reply_to: message.replyTo,
+    }),
+  })
+  if (!response.ok) {
+    console.error('[email] provider rejected message', response.status, await response.text().catch(() => ''))
+    return { sent: false, reason: 'provider error' }
+  }
+  return { sent: true }
+}
+
+export async function deliverEmail({ to, subject, html, text, replyTo }) {
   if (!to) return { sent: false, reason: 'no recipient' }
-  if (!apiKey) {
-    console.info(`[email] EMAIL_API_KEY not set, skipped "${subject}" to ${to}`)
+  const provider = emailProvider()
+  if (provider === 'none') {
+    console.info(`[email] no email provider configured, skipped "${subject}" to ${to}`)
     return { sent: false, reason: 'not configured' }
   }
   try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from, to, subject, html, text, reply_to: replyTo }),
-    })
-    if (!response.ok) {
-      console.error('[email] provider rejected message', response.status, await response.text().catch(() => ''))
-      return { sent: false, reason: 'provider error' }
-    }
-    return { sent: true }
+    const message = { to, subject, html, text, replyTo }
+    return provider === 'smtp' ? await sendWithSmtp(message) : await sendWithResend(message)
   } catch (error) {
-    console.error('[email] failed to send', error)
-    return { sent: false, reason: 'network error' }
+    console.error(`[email] failed to send "${subject}" via ${provider}:`, error?.message || error)
+    return { sent: false, reason: 'send failed', error: error?.message || String(error) }
   }
+}
+
+export async function sendEmail(message) {
+  if (!message?.to) return { sent: false, reason: 'no recipient' }
+  if (queueEnabled()) {
+    try {
+      await publishEmail(message)
+      return { sent: true, queued: true }
+    } catch (error) {
+      console.error(`[email] queue unavailable, sending "${message.subject}" directly:`, error?.message || error)
+    }
+  }
+  return deliverEmail(message)
 }

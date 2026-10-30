@@ -40,7 +40,7 @@ Roles in the admin area:
 api/router.js   Vercel function: every /api request goes through it
 server/         Backend: router, auth, validation, email, routes per area
 db/migrations/  Database schema, applied in order by npm run db:migrate
-scripts/        Migrate, seed services, create the CTO account
+scripts/        Migrate, seed services, create the CTO account, email worker
 src/
   admin/        Admin area (lazy-loaded)
   components/   Shared components (Layout, Navbar, Footer, cards, form fields, icons)
@@ -113,6 +113,7 @@ Log in at http://localhost:5173/admin with the CTO account, then:
 | `npm run db:migrate` | Apply new database migrations |
 | `npm run db:seed` | Add the default services (safe to run again) |
 | `npm run create-cto` | Create the single CTO account |
+| `npm run email-worker` | Send queued emails from RabbitMQ (only if `RABBITMQ_URL` is set) |
 
 To change the database, add a new file in `db/migrations/` (for example `002_add_reviews.sql`). Never edit a
 migration that has already been applied.
@@ -123,13 +124,38 @@ migration that has already been applied.
 2. Import the repo in Vercel (framework preset: Vite, build command `npm run build`, output `dist`).
 3. Under Project Settings, Environment Variables, add: `DATABASE_URL`, `AUTH_SECRET`, `SITE_URL`
    (e.g. `https://lephas.com`, also used for share previews and the sitemap), and for emails `EMAIL_API_KEY`,
-   `EMAIL_FROM`, `TEAM_NOTIFICATION_EMAIL`.
+   `EMAIL_FROM`, `TEAM_NOTIFICATION_EMAIL`, and optionally `RABBITMQ_URL`.
 4. From your computer, with `DATABASE_URL` in `.env` pointing at that database, run `npm run db:migrate`,
    `npm run db:seed` and `npm run create-cto`.
 
 `vercel.json` sends every `/api/...` request to `api/router.js` and every other path to the React app.
-Emails are sent through Resend. Without `EMAIL_API_KEY` the site still works: staff can copy the client's private link
-from the request page and send it by WhatsApp or SMS.
+Emails are sent through Gmail (set `SMTP_USER` and `SMTP_PASS`) or Resend (set `EMAIL_API_KEY`). Without either, the
+site still works: staff can copy the client's private link from the request page and send it by WhatsApp or SMS.
+
+### Sending emails with Gmail
+
+1. Turn on 2-Step Verification for the Gmail account (Google Account, Security).
+2. Create an app password: Google Account, Security, App passwords. Name it "Lephas website" and copy the 16 letters.
+3. Set `SMTP_USER` to the Gmail address, `SMTP_PASS` to the app password (no spaces), and `TEAM_NOTIFICATION_EMAIL`
+   to the inbox that should receive new-request alerts. On Vercel, add them under Environment Variables and redeploy.
+
+Gmail limits how many emails an account can send per day, which is plenty for a small business.
+
+### Email queue with RabbitMQ (optional)
+
+Without RabbitMQ, emails are sent straight away. With it, the website puts each email on a queue and answers the
+client immediately, and a separate worker sends the emails and retries when Gmail is slow or down.
+
+1. Create a free RabbitMQ instance on [CloudAMQP](https://www.cloudamqp.com) (plan "Little Lemur") and copy its
+   `amqps://...` URL.
+2. Add `RABBITMQ_URL` to Vercel's Environment Variables (and to `.env` locally) and redeploy.
+3. Run the worker somewhere that stays on, with the same `RABBITMQ_URL`, `SMTP_USER` and `SMTP_PASS`:
+   `npm run email-worker`. Vercel cannot run it, because its functions stop after each request; use a small always-on
+   host (Render, Railway, Fly.io, or a computer or server in the office).
+
+Emails that fail 4 times go to the `lephas.emails.failed` queue, where you can see them in the CloudAMQP dashboard.
+If the website cannot reach RabbitMQ, it sends the email directly, so a queue problem never loses an email.
+Important: if `RABBITMQ_URL` is set, keep the worker running, otherwise emails wait in the queue.
 
 ## Automatic checks
 
@@ -138,7 +164,7 @@ push to `main` or `Dev` and on every pull request. A red cross on GitHub means s
 
 ## Versions
 
-The current version is in `package.json` (now **1.0.0**) and is shown in the website footer, the admin sidebar
+The current version is in `package.json` (now **1.0.1**) and is shown in the website footer, the admin sidebar
 and `GET /api/health`. For each release, raise the version in `package.json` and add a section to `CHANGELOG.md`.
 
 ## Git rules

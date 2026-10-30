@@ -3,6 +3,16 @@
 All notable changes to the Lephas website. Versions follow [semantic versioning](https://semver.org):
 MAJOR for big changes, MINOR for new features, PATCH for fixes. Update `version` in `package.json` with each release.
 
+## 1.0.1
+
+- Emails can now be sent through Gmail (or any SMTP server) using an app password. Set `SMTP_USER` and `SMTP_PASS`.
+  When a client sends a request, the team gets a professional notification email and the client gets a confirmation
+  with their reference number and private link. Resend still works if `EMAIL_API_KEY` is set instead.
+- Optional RabbitMQ email queue. With `RABBITMQ_URL` set, the website puts each email on the `lephas.emails` queue
+  and returns at once; `npm run email-worker` sends them, retrying up to 4 times, and moves emails that still fail
+  to `lephas.emails.failed`. If RabbitMQ is down, emails are sent directly so nothing is lost.
+- A failing mail server never blocks a client's request; it is saved and shown in the dashboard either way.
+
 ## 1.0.0 (first release)
 
 - Public site: Home, Services, Hire talent with full profiles (photo, skills, rate, GitHub, LinkedIn, portfolio), Portfolio, Process, Pricing, About, Contact.
