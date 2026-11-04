@@ -490,7 +490,7 @@ async function writeSettings({ req }) {
   if (v.values.invoice_due_days !== null && v.values.invoice_due_days !== undefined) v.values.invoice_due_days = String(v.values.invoice_due_days)
   if (v.values.currency) {
     v.values.currency = v.values.currency.toUpperCase()
-    if (!/^[A-Z]{3}$/.test(v.values.currency)) v.fail('currency', 'Use a 3-letter currency code such as USD or KES.')
+    if (!/^[A-Z]{3}$/.test(v.values.currency)) v.fail('currency', 'Use a 3-letter currency code such as KES.')
   }
   const values = v.done()
   await transaction(async (tx) => {

@@ -7,13 +7,25 @@ import { useSite } from '../context/site.js'
 import { whatsappLink } from '../lib/format.js'
 
 export default function Layout() {
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
   const { settings } = useSite()
   const whatsapp = whatsappLink(settings.whatsapp_number, 'Hello Lephas, I would like to talk about a project.')
 
   useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [pathname])
+    if (!hash) {
+      window.scrollTo(0, 0)
+      return undefined
+    }
+    let tries = 0
+    const timer = setInterval(() => {
+      const target = document.getElementById(decodeURIComponent(hash.slice(1)))
+      if (target || ++tries > 20) {
+        clearInterval(timer)
+        target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+    return () => clearInterval(timer)
+  }, [pathname, hash])
 
   return (
     <div className="flex min-h-screen flex-col">

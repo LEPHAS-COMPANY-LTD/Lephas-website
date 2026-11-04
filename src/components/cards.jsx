@@ -1,13 +1,10 @@
 import { Link } from 'react-router-dom'
 import Icon from './Icon.jsx'
 import { AvailabilityBadge, Avatar } from './ui.jsx'
-import { money, priceLabel } from '../lib/format.js'
-import { useSite } from '../context/site.js'
 
 export function ServiceCard({ service, compact = false }) {
-  const { settings } = useSite()
   return (
-    <article className="neu neu-hover flex h-full flex-col p-7">
+    <article id={service.slug} className="neu neu-hover flex h-full scroll-mt-28 flex-col p-7">
       <span className="icon-well">
         <Icon name={service.icon} size={24} />
       </span>
@@ -25,7 +22,7 @@ export function ServiceCard({ service, compact = false }) {
         </ul>
       )}
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <span className="text-sm font-semibold text-slate">{priceLabel(service, settings.currency)}</span>
+        <span className="text-sm font-semibold text-slate">Priced in your quotation</span>
         <Link to={`/start?service=${service.slug}`} className="btn btn-sm">
           Request this
           <Icon name="arrow" size={16} />
@@ -36,7 +33,6 @@ export function ServiceCard({ service, compact = false }) {
 }
 
 export function MemberCard({ member }) {
-  const { settings } = useSite()
   return (
     <article className="neu neu-hover flex h-full flex-col items-center p-7 text-center">
       <Avatar src={member.photo} name={member.full_name} size={104} />
@@ -56,11 +52,6 @@ export function MemberCard({ member }) {
         </ul>
       )}
       <div className="mt-auto flex w-full flex-col gap-3 pt-6">
-        {member.hourly_rate !== null && member.hourly_rate !== undefined && (
-          <p className="text-sm text-muted">
-            <span className="font-semibold text-slate">{money(member.hourly_rate, settings.currency)}</span> / hour
-          </p>
-        )}
         <div className="flex justify-center gap-3">
           <Link to={`/talent/${member.slug}`} className="btn btn-sm">
             View profile

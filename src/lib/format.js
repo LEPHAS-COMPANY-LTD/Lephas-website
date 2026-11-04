@@ -40,7 +40,7 @@ export const STATUS_TONES = {
 
 export const labelOf = (list, value) => list.find((item) => item.value === value)?.label ?? value ?? ''
 
-export function money(amount, currency = 'USD') {
+export function money(amount, currency = 'KES') {
   if (amount === null || amount === undefined) return null
   try {
     return new Intl.NumberFormat('en', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount)
@@ -49,10 +49,8 @@ export function money(amount, currency = 'USD') {
   }
 }
 
-export function priceLabel(service, currency) {
-  if (service.starting_price === null || service.starting_price === undefined) return 'Custom quote'
-  const unit = { project: '', hour: ' / hour', month: ' / month' }[service.price_unit] ?? ''
-  return `From ${money(service.starting_price, currency)}${unit}`
+export function priceLabel() {
+  return 'Priced in your quotation'
 }
 
 export function dateTime(value) {

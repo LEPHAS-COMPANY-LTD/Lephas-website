@@ -4,7 +4,6 @@ import Icon from '../components/Icon.jsx'
 import { Avatar, EmptyState, ErrorState, Loader, Select, TextArea, TextInput } from '../components/ui.jsx'
 import { api } from '../services/api.js'
 import { useAsync } from '../lib/useAsync.js'
-import { useSite } from '../context/site.js'
 import { AdminHeader, ImageUpload, Modal, TagInput, Toast, Toggle } from './shared.jsx'
 import { emptyToNull } from './utils.js'
 
@@ -15,7 +14,6 @@ const EMPTY = {
 }
 
 function MemberForm({ initial, onSaved, onCancel }) {
-  const { settings } = useSite()
   const [form, setForm] = useState(() => {
     const base = { ...EMPTY }
     for (const key of Object.keys(EMPTY)) {
@@ -102,10 +100,9 @@ function MemberForm({ initial, onSaved, onCancel }) {
         error={errors.bio}
       />
       <TagInput label="Skills" value={form.skills} onChange={set('skills')} placeholder="React, Node.js, Figma…" error={errors.skills} />
-      <div className="grid gap-5 sm:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2">
         <TextInput label="Location" placeholder="Nairobi, Kenya" value={form.location} onChange={set('location')} error={errors.location} />
         <TextInput label="Years of experience" type="number" min={0} value={form.years_experience} onChange={set('years_experience')} error={errors.years_experience} />
-        <TextInput label={`Hourly rate (${settings.currency})`} type="number" min={0} hint="Empty hides the rate" value={form.hourly_rate} onChange={set('hourly_rate')} error={errors.hourly_rate} />
       </div>
       <TagInput label="Languages" value={form.languages} onChange={set('languages')} placeholder="English, Swahili…" error={errors.languages} />
       <fieldset className="neu-inset p-5">

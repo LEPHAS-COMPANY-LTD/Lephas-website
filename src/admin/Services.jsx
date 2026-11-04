@@ -3,8 +3,6 @@ import Icon from '../components/Icon.jsx'
 import { EmptyState, ErrorState, Loader, Select, TextArea, TextInput } from '../components/ui.jsx'
 import { api } from '../services/api.js'
 import { useAsync } from '../lib/useAsync.js'
-import { priceLabel } from '../lib/format.js'
-import { useSite } from '../context/site.js'
 import { AdminHeader, Modal, TagInput, Toast, Toggle } from './shared.jsx'
 import { emptyToNull } from './utils.js'
 import { useAdmin } from './context.js'
@@ -44,9 +42,8 @@ function ServiceForm({ initial, onSaved, onCancel }) {
       <TextInput label="Short summary" required value={form.summary} onChange={set('summary')} error={errors.summary} maxLength={240} />
       <TextArea label="Description" rows={4} value={form.description} onChange={set('description')} error={errors.description} />
       <TagInput label="Key features" value={form.features} onChange={set('features')} placeholder="e.g. Mobile-first design" error={errors.features} />
-      <div className="grid gap-5 sm:grid-cols-3">
-        <TextInput label="Starting price" type="number" min={0} hint="Leave empty for “Custom quote”" value={form.starting_price} onChange={set('starting_price')} error={errors.starting_price} />
-        <Select label="Per" options={[{ value: 'project', label: 'Project' }, { value: 'hour', label: 'Hour' }, { value: 'month', label: 'Month' }]} value={form.price_unit} onChange={set('price_unit')} />
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Select label="Billed per" options={[{ value: 'project', label: 'Project' }, { value: 'hour', label: 'Hour' }, { value: 'month', label: 'Month' }]} value={form.price_unit} onChange={set('price_unit')} />
         <TextInput label="Typical delivery" placeholder="2 to 4 weeks" value={form.delivery_estimate} onChange={set('delivery_estimate')} error={errors.delivery_estimate} />
       </div>
       <div className="grid gap-5 sm:grid-cols-3">
@@ -70,7 +67,6 @@ function ServiceForm({ initial, onSaved, onCancel }) {
 
 export default function Services() {
   const { canManage } = useAdmin()
-  const { settings } = useSite()
   const { data, error, loading, reload } = useAsync((opts) => api.admin.services(opts), [])
   const [editing, setEditing] = useState(null)
   const [toast, setToast] = useState(null)
@@ -114,7 +110,7 @@ export default function Services() {
                 {service.name} {!service.active && <span className="chip ml-1">Hidden</span>}
               </p>
               <p className="text-xs text-muted">
-                {service.category} · {priceLabel(service, settings.currency)}
+                {service.category}
               </p>
               <p className="mt-2 line-clamp-2 text-sm text-muted">{service.summary}</p>
             </div>

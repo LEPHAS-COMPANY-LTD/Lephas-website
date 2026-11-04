@@ -136,7 +136,7 @@ async function getMedia({ params, res }) {
   res.end(row.data)
 }
 
-const STATIC_PAGES = ['/', '/services', '/talent', '/portfolio', '/process', '/pricing', '/about', '/contact', '/start', '/privacy', '/terms']
+const STATIC_PAGES = ['/', '/services', '/talent', '/portfolio', '/process', '/about', '/contact', '/start', '/privacy', '/terms']
 
 function xmlEscape(value) {
   return String(value).replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' })[c])

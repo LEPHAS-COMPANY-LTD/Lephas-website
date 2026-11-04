@@ -14,7 +14,7 @@ const GROUPS = [
       { key: 'whatsapp_number', label: 'WhatsApp number', type: 'tel', placeholder: '+254 700 000 000', hint: 'Shows the floating “Chat with us” button.' },
       { key: 'office_address', label: 'Office address', placeholder: 'City, Country' },
       { key: 'business_hours', label: 'Business hours', placeholder: 'Mon to Fri, 8:00 to 18:00' },
-      { key: 'currency', label: 'Currency', placeholder: 'USD', hint: 'Used for prices, rates and budgets. 3-letter code.' },
+      { key: 'currency', label: 'Currency', placeholder: 'KES', hint: 'Used on quotations and invoices. 3-letter code.' },
       { key: 'data_protection_registration', label: 'Data protection registration number', placeholder: 'Leave empty until registered', hint: 'Shown on the privacy policy once filled in.' },
     ],
   },

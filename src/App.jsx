@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
 import { Loader } from './components/ui.jsx'
 import Home from './pages/Home.jsx'
@@ -9,7 +9,6 @@ import TalentProfile from './pages/TalentProfile.jsx'
 import Portfolio from './pages/Portfolio.jsx'
 import ProjectDetail from './pages/ProjectDetail.jsx'
 import Process from './pages/Process.jsx'
-import Pricing from './pages/Pricing.jsx'
 import About from './pages/About.jsx'
 import Contact from './pages/Contact.jsx'
 import StartProject from './pages/StartProject.jsx'
@@ -40,7 +39,7 @@ export default function App() {
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/portfolio/:slug" element={<ProjectDetail />} />
         <Route path="/process" element={<Process />} />
-        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/pricing" element={<Navigate to="/services" replace />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/start" element={<StartProject />} />

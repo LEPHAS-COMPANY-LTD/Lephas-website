@@ -4,13 +4,12 @@ import Icon from '../components/Icon.jsx'
 import { Avatar, ErrorState, Loader, Select, TextArea, TextInput } from '../components/ui.jsx'
 import { api } from '../services/api.js'
 import { useAsync, usePageMeta } from '../lib/useAsync.js'
-import { BUDGETS, ENGAGEMENTS, TIMELINES, labelOf, money } from '../lib/format.js'
-import { useSite } from '../context/site.js'
+import { ENGAGEMENTS, TIMELINES, labelOf } from '../lib/format.js'
 import { rememberRequest } from '../lib/requests.js'
 
 const STEP_FIELDS = [
   ['service_id', 'team_member_slug'],
-  ['engagement', 'budget_range', 'timeline', 'subject', 'details'],
+  ['engagement', 'timeline', 'subject', 'details'],
   ['full_name', 'email', 'phone', 'company', 'country', 'preferred_contact'],
 ]
 
@@ -24,7 +23,6 @@ export default function StartProject() {
   usePageMeta('Start a project', 'Tell Lephas what you need and get a reply with a plan and quote within one business day.')
   const [params] = useSearchParams()
   const navigate = useNavigate()
-  const { settings } = useSite()
   const hireSlug = params.get('hire')
   const services = useAsync((opts) => api.services(opts), [])
   const member = useAsync((opts) => (hireSlug ? api.member(hireSlug, opts) : Promise.resolve(null)), [hireSlug])
@@ -33,7 +31,6 @@ export default function StartProject() {
   const [form, setForm] = useState({
     service_id: '',
     engagement: hireSlug ? 'hourly' : '',
-    budget_range: '',
     timeline: '',
     subject: '',
     details: '',
@@ -93,7 +90,6 @@ export default function StartProject() {
         service_id: serviceId || undefined,
         team_member_slug: hireSlug || undefined,
         engagement: form.engagement || undefined,
-        budget_range: form.budget_range || undefined,
         timeline: form.timeline || undefined,
       }
       const result = await api.submitInquiry(payload)
@@ -175,9 +171,6 @@ export default function StartProject() {
                   <div className="text-center sm:text-left">
                     <p className="text-lg font-bold text-slate">{hiring.full_name}</p>
                     <p className="text-sm text-sky-deep">{hiring.title}</p>
-                    {hiring.hourly_rate !== null && (
-                      <p className="mt-1 text-sm text-muted">{money(hiring.hourly_rate, settings.currency)} / hour</p>
-                    )}
                     <ul className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
                       {hiring.skills.slice(0, 6).map((skill) => (
                         <li key={skill} className="chip">
@@ -266,14 +259,6 @@ export default function StartProject() {
             </div>
             <div className="grid gap-6 sm:grid-cols-2">
               <Select
-                label={`Budget (${settings.currency})`}
-                placeholder="Select a range"
-                options={BUDGETS}
-                value={form.budget_range}
-                onChange={set('budget_range')}
-                error={errors.budget_range}
-              />
-              <Select
                 label="Timeline"
                 placeholder="When do you need it?"
                 options={TIMELINES}
@@ -348,7 +333,6 @@ export default function StartProject() {
               <p className="mt-2">
                 {hiring ? `Hiring ${hiring.full_name}` : selectedService?.name}
                 {form.engagement && ` · ${labelOf(ENGAGEMENTS, form.engagement)}`}
-                {form.budget_range && ` · ${labelOf(BUDGETS, form.budget_range)} ${settings.currency}`}
                 {form.timeline && ` · ${labelOf(TIMELINES, form.timeline)}`}
               </p>
             </div>

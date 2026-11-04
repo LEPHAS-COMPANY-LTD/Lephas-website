@@ -13,7 +13,6 @@ const columns = [
       { to: '/start', label: 'Start a project' },
       { to: '/talent', label: 'Hire a developer' },
       { to: '/services', label: 'Services' },
-      { to: '/pricing', label: 'Pricing' },
       { to: '/requests', label: 'Track my request' },
     ],
   },

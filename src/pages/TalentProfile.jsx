@@ -4,12 +4,9 @@ import { ProjectCard } from '../components/cards.jsx'
 import { AvailabilityBadge, Avatar, BackLink, ErrorState, ExternalLink, Loader } from '../components/ui.jsx'
 import { api } from '../services/api.js'
 import { useAsync, usePageMeta } from '../lib/useAsync.js'
-import { useSite } from '../context/site.js'
-import { money } from '../lib/format.js'
 
 export default function TalentProfile() {
   const { slug } = useParams()
-  const { settings } = useSite()
   const { data, error, loading, reload } = useAsync((opts) => api.member(slug, opts), [slug])
   const member = data?.member
   usePageMeta(member ? `${member.full_name}, ${member.title}` : 'Talent profile', member?.headline)
@@ -27,7 +24,6 @@ export default function TalentProfile() {
   const facts = [
     member.location && { icon: 'map', label: 'Location', value: member.location },
     member.years_experience !== null && { icon: 'briefcase', label: 'Experience', value: `${member.years_experience} year${member.years_experience === 1 ? '' : 's'}` },
-    member.hourly_rate !== null && { icon: 'clock', label: 'Hourly rate', value: `${money(member.hourly_rate, settings.currency)} / hour` },
     member.languages?.length > 0 && { icon: 'chat', label: 'Languages', value: member.languages.join(', ') },
   ].filter(Boolean)
 

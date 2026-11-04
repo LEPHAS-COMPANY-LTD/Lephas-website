@@ -27,7 +27,7 @@ export const mediaUrl = (id, fallback) => (id ? `/api/media/${id}` : fallback ||
 export async function getSettings() {
   const rows = await many('select key, value from site_settings')
   const settings = Object.fromEntries(SETTING_KEYS.map((key) => [key, '']))
-  settings.currency = 'USD'
+  settings.currency = 'KES'
   settings.invoice_due_days = '14'
   settings.default_tax_rate = '0'
   settings.default_tax_label = 'VAT'

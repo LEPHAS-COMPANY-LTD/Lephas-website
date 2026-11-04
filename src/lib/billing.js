@@ -18,7 +18,7 @@ export const BILLING_TONES = {
   expired: 'bg-silver/70 text-slate',
 }
 
-export function formatCents(cents, currency = 'USD') {
+export function formatCents(cents, currency = 'KES') {
   const value = (Number(cents) || 0) / 100
   try {
     return new Intl.NumberFormat('en', { style: 'currency', currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)

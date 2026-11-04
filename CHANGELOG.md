@@ -5,12 +5,15 @@ MAJOR for big changes, MINOR for new features, PATCH for fixes. Update `version`
 
 ## 1.0.0 (first release)
 
-- Public site: Home, Services, Hire talent with full profiles (photo, skills, rate, GitHub, LinkedIn, portfolio), Portfolio, Process, Pricing, About, Contact.
+- Public site: Home, Services, Hire talent with full profiles (photo, skills, GitHub, LinkedIn, portfolio), Portfolio, Process, About, Contact.
 - Clients reach Lephas: Start a project (3-step form), Hire a developer, contact form, WhatsApp, email and phone.
 - Private request page per client with a two-way conversation and email notifications.
 - Quotations and invoices: create from a request, send, client accepts online, convert to invoice, record payments, print or save as PDF.
 - Admin area with roles: CTO (only one), Admin, Staff. Only the CTO manages team profiles, staff accounts and settings.
-- Neumorphism design in the logo colours, light mode by default with an optional dark mode.
+- Frosted glass design over a tech background, in muted sage grey with beige accents. Light mode by default with an optional dark mode.
+- Sticky top navigation with a Home link, a back button on every inner page and a Services dropdown that jumps to each service.
+- Prices are not shown on the site. Each price is agreed with the client and typed into the quotation. The old `/pricing` address now opens Services.
+- Kenyan Shillings (KES) is the default currency for quotations and invoices.
 - Privacy policy and terms pages, linked from the footer and the request forms. The data protection registration number can be added in Contact settings once registered.
 - SEO: `robots.txt`, a sitemap that includes team profiles and projects, and a share image for WhatsApp, LinkedIn and other social links.
 - Security headers on every page.

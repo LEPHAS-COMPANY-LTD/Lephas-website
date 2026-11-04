@@ -28,14 +28,14 @@ async function loadNew(inquiryId, kind, opts) {
       description: `${member.full_name}, ${member.title}${inquiry.service ? ` · ${inquiry.service.name}` : ''}`,
       quantity: 1,
       unit,
-      unit_price: member.hourly_rate !== null && member.hourly_rate !== undefined ? String(unit === 'month' ? member.hourly_rate * 160 : member.hourly_rate) : '',
+      unit_price: '',
     })
   } else if (service) {
     items.push({
       description: `${service.name}${inquiry.subject ? `: ${inquiry.subject}` : ''}`,
       quantity: 1,
       unit: service.price_unit === 'project' ? 'project' : service.price_unit,
-      unit_price: service.starting_price !== null && service.starting_price !== undefined ? String(service.starting_price) : '',
+      unit_price: '',
     })
   } else {
     items.push(emptyItem())
@@ -52,7 +52,7 @@ async function loadNew(inquiryId, kind, opts) {
       client_phone: inquiry.phone || '',
       client_company: inquiry.company || '',
       client_address: inquiry.country || '',
-      currency: settings.currency || 'USD',
+      currency: settings.currency || 'KES',
       issue_date: addDays(0),
       due_date: addDays(kind === 'invoice' ? Number(settings.invoice_due_days) || 14 : 30),
       discount: '',
@@ -98,7 +98,7 @@ function previewDocument(draft, base) {
     title: draft.title,
     reference: base?.reference,
     client: { name: draft.client_name, email: draft.client_email, phone: draft.client_phone, company: draft.client_company, address: draft.client_address },
-    currency: (draft.currency || 'USD').toUpperCase(),
+    currency: (draft.currency || 'KES').toUpperCase(),
     issue_date: draft.issue_date,
     due_date: draft.due_date,
     items: draft.items.map((item) => ({
@@ -126,7 +126,7 @@ function Editor({ initial, base, settings, saving, errors, onSave }) {
   const [draft, setDraft] = useState(initial)
   const [preview, setPreview] = useState(false)
   const totals = useMemo(() => computeTotals(draft.items, draft.discount, draft.tax_rate), [draft])
-  const currency = (draft.currency || 'USD').toUpperCase()
+  const currency = (draft.currency || 'KES').toUpperCase()
   const set = (key) => (event) => setDraft((prev) => ({ ...prev, [key]: event.target.value }))
   const setItem = (index, key) => (event) =>
     setDraft((prev) => ({ ...prev, items: prev.items.map((item, i) => (i === index ? { ...item, [key]: event.target.value } : item)) }))

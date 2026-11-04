@@ -112,6 +112,7 @@ const paths = {
   check: <path d="M5 12.5l4.2 4.2L19 7" />,
   arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
   back: <path d="M19 12H5M11 6l-6 6 6 6" />,
+  chevron: <path d="M6 9l6 6 6-6" />,
   search: (
     <>
       <circle cx="11" cy="11" r="6.5" />

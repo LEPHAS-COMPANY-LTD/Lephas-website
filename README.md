@@ -12,7 +12,7 @@ Built with React (Vite) and Tailwind CSS, a Node API in `server/`, and PostgreSQ
 
 | Area | Pages |
 | --- | --- |
-| Reach clients | Home, Services, Hire talent (team directory and profiles), Portfolio, Process, Pricing, About |
+| Reach clients | Home, Services, Hire talent (team directory and profiles), Portfolio, Process, About |
 | Clients reach us | Start a project (3-step form), Hire a developer, Contact form, WhatsApp, email and phone buttons |
 | Two-way conversation | `/requests/:reference` private page for the client, inbox and replies in `/admin` |
 | Quotations and invoices | Created from a request in `/admin`, sent to the client, accepted online, paid, printed or saved as PDF |
