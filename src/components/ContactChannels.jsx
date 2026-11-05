@@ -2,6 +2,10 @@ import Icon from './Icon.jsx'
 import { useSite } from '../context/site.js'
 import { telLink, whatsappLink } from '../lib/format.js'
 
+const signalLink = (number) => {
+  const digits = String(number).replace(/\D/g, '')
+  return `https://signal.me/#p/+${digits}`
+}
 export default function ContactChannels({ layout = 'row', message = 'Hello Lephas, I would like to talk about a project.' }) {
   const { settings } = useSite()
   const channels = [
@@ -10,6 +14,13 @@ export default function ContactChannels({ layout = 'row', message = 'Hello Lepha
       label: 'WhatsApp',
       value: settings.whatsapp_number,
       href: whatsappLink(settings.whatsapp_number, message),
+      external: true,
+    },
+    {
+      icon: 'signal',
+      label: 'Signal',
+      value: settings.signal_number || '+254728700329',
+      href: signalLink(settings.signal_number || '+254728700329'),
       external: true,
     },
     settings.contact_email && {
@@ -29,7 +40,7 @@ export default function ContactChannels({ layout = 'row', message = 'Hello Lepha
   if (channels.length === 0) return null
 
   return (
-    <ul className={layout === 'row' ? 'grid gap-5 sm:grid-cols-3' : 'flex flex-col gap-4'}>
+    <ul className={layout === 'row' ? 'grid gap-5 sm:grid-cols-2 lg:grid-cols-4' : 'flex flex-col gap-4'}>
       {channels.map((channel) => (
         <li key={channel.label}>
           <a
