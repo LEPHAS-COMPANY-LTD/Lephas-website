@@ -15,6 +15,9 @@
     "email-worker": "node --env-file-if-exists=.env scripts/email-worker.js"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
     "@tailwindcss/vite": "^4.3.3",
     "amqplib": "^0.10.9",
     "bcryptjs": "^3.0.3",
@@ -27,6 +30,7 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",

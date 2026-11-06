@@ -1,0 +1,9 @@
+{
+  "appId": "com.lephascompany.app",
+  "appName": "Lephas",
+  "webDir": "dist",
+  "server": {
+    "url": "https://lephas-website.vercel.app",
+    "cleartext": false
+  }
+}

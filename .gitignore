@@ -29,3 +29,6 @@ dist-ssr
 !.env.example
 *.pem
 .vercel
+
+# Capacitor asset preview scratch
+assets/_*.png
