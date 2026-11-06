@@ -31,6 +31,24 @@ export default function About() {
         </div>
       </div>
 
+      <section aria-labelledby="explainer-title" className="neu-lg p-4 sm:p-6">
+        <h2 id="explainer-title" className="sr-only">Watch: who we are and what we stand for</h2>
+        <video className="w-full rounded-2xl" controls preload="metadata" poster="/lephas-explainer-poster.jpg">
+          <source src="/lephas-explainer.mp4" type="video/mp4" />
+          <track kind="captions" src="/lephas-explainer.vtt" srcLang="en" label="English" default />
+          Your browser does not support the video tag.
+        </video>
+        <details className="mt-5 px-2">
+          <summary className="cursor-pointer font-semibold text-slate">Read the transcript</summary>
+          <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
+            <p>Lephas Company Ltd. Transforming the future.</p>
+            <p>Lephas is a software company, founded in 2026, built around its clients. We design, build and support the technology that moves your business forward.</p>
+            <p>We build business websites, online stores, mobile apps, point-of-sale systems, and the APIs that connect them. Bring us a whole project, or hire one of our developers directly — the flexibility of hiring an individual, with the accountability of a company.</p>
+            <p>What we stand for: plain communication — no jargon, so you always know what we are doing, why, and what it costs. Quality you can rely on — tested code, secure systems, and sites that load fast on any phone. Partnership — we stay with you after launch and grow your product as your business grows. And transforming the future — helping businesses use technology to serve more customers and work smarter.</p>
+            <p>From your first idea, to launch day and beyond, you work with a team that keeps you informed every step of the way. Lephas Company Ltd — let’s build what moves your business forward.</p>
+          </div>
+        </details>
+      </section>
       <section>
         <SectionTitle eyebrow="What we believe" title="Our values" />
         <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4">

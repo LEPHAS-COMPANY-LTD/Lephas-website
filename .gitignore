@@ -29,3 +29,7 @@ dist-ssr
 !.env.example
 *.pem
 .vercel
+
+# Local Piper voice model (do not commit)
+*.onnx
+*.onnx.json
