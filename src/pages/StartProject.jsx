@@ -45,6 +45,7 @@ export default function StartProject() {
   const [errors, setErrors] = useState({})
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState(null)
+  const [celebrate, setCelebrate] = useState(false)
 
   const serviceList = useMemo(() => services.data?.services ?? [], [services.data])
   const presetServiceId = serviceList.find((service) => service.slug === params.get('service'))?.id ?? ''
@@ -95,7 +96,11 @@ export default function StartProject() {
       const result = await api.submitInquiry(payload)
       if (result.token) {
         rememberRequest({ reference: result.reference, token: result.token, subject: payload.subject || selectedService?.name || hiring?.full_name })
-        navigate(`/requests/${result.reference}?token=${encodeURIComponent(result.token)}`, { state: { created: true } })
+        setCelebrate(true)
+        setTimeout(
+          () => navigate(`/requests/${result.reference}?token=${encodeURIComponent(result.token)}`, { state: { created: true } }),
+          1400,
+        )
       }
     } catch (error) {
       setSubmitError(error)
@@ -114,15 +119,38 @@ export default function StartProject() {
 
   const steps = [hireSlug ? 'Who' : 'Service', 'Project', 'Your details']
 
+  if (celebrate) {
+    return (
+      <div className="mx-auto max-w-lg py-24 text-center">
+        <div className="pop neu-lg mx-auto flex h-24 w-24 items-center justify-center rounded-full text-sky-deep">
+          <Icon name="check" size={48} />
+        </div>
+        <h1 className="font-display mt-8 text-4xl text-slate sm:text-5xl">Request sent 🎉</h1>
+        <p className="mx-auto mt-4 max-w-sm text-muted">
+          Opening your private page, where you can follow progress and message us any time…
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="mx-auto max-w-4xl">
-      <header className="mb-10 text-center">
+      <header className="mb-8 text-center">
         <span className="eyebrow">{hireSlug ? 'Hire talent' : 'Start a project'}</span>
-        <h1 className="mt-3 text-3xl font-bold text-slate sm:text-4xl">
-          {hireSlug ? `Hire ${hiring?.full_name ?? 'a developer'}` : 'Tell us what you need'}
+        <h1 className="font-display mt-3 text-4xl text-slate sm:text-5xl">
+          {hireSlug ? `Hire ${hiring?.full_name ?? 'a developer'}` : 'Let’s build something great'}
         </h1>
-        <p className="mx-auto mt-3 max-w-xl text-muted">Takes about three minutes. We reply within one business day.</p>
+        <p className="mx-auto mt-3 max-w-xl text-muted">Three quick steps, about three minutes. We reply within one business day.</p>
       </header>
+
+      <div className="mb-6 flex items-center gap-4">
+        <div className="progress-track flex-1">
+          <div className="progress-fill" style={{ width: `${((step + 1) / steps.length) * 100}%` }} />
+        </div>
+        <span className="shrink-0 text-sm font-semibold text-muted">
+          Step {step + 1} of {steps.length}
+        </span>
+      </div>
 
       <ol className="mb-10 grid grid-cols-3 gap-3 sm:gap-5" aria-label="Progress">
         {steps.map((label, index) => (
@@ -161,6 +189,7 @@ export default function StartProject() {
           </label>
         </div>
 
+        <div key={step} className="reveal">
         {step === 0 && (
           <fieldset>
             {hireSlug && hiring ? (
@@ -196,7 +225,7 @@ export default function StartProject() {
               </>
             ) : (
               <>
-                <legend className="mb-6 text-xl font-bold text-slate">What do you need built?</legend>
+                <legend className="mb-6 text-xl font-bold text-slate">What are we building?</legend>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="radiogroup" aria-label="Service">
                   {serviceList.map((service) => {
                     const active = serviceId === service.id
@@ -235,7 +264,7 @@ export default function StartProject() {
 
         {step === 1 && (
           <fieldset className="space-y-7">
-            <legend className="mb-2 text-xl font-bold text-slate">Tell us about the project</legend>
+            <legend className="mb-2 text-xl font-bold text-slate">Tell us a little more</legend>
             <div>
               <p className="field-label">How would you like to work with us?</p>
               <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Engagement">
@@ -338,6 +367,7 @@ export default function StartProject() {
             </div>
           </fieldset>
         )}
+        </div>
 
         {submitError && !Object.keys(submitError.fields || {}).length && (
           <p className="field-error mt-6" role="alert">
