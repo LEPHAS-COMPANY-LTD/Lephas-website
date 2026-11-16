@@ -40,7 +40,7 @@ export default function Home() {
       <section className="grid items-center gap-12 pt-4 lg:grid-cols-[1.15fr_0.85fr]">
         <div>
           <span className="eyebrow">Lephas Company Ltd · Est. 2026</span>
-          <h1 className="mt-4 text-4xl font-bold leading-[1.1] text-slate sm:text-5xl lg:text-6xl">
+          <h1 className="font-display mt-4 text-5xl leading-[1.03] text-slate sm:text-6xl lg:text-7xl">
             Websites, apps and systems that move your business forward.
           </h1>
           <p className="mt-6 max-w-xl text-lg text-muted">

@@ -1,5 +1,13 @@
 @import 'tailwindcss';
 
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url('/fonts/fraunces-600.woff2') format('woff2');
+}
+
 @theme {
   --color-slate: #34403b;
   --color-slate-soft: #4c5852;
@@ -15,6 +23,12 @@
   --color-navy: #2c2418;
   --color-danger: #9b3b32;
   --font-sans: 'Poppins', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Fraunces', 'Poppins', Georgia, serif;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-1: 160ms;
+  --dur-2: 240ms;
+  --dur-3: 420ms;
   --glass-bg: rgb(234 238 231 / 0.62);
   --glass-bg-strong: rgb(234 238 231 / 0.8);
   --glass-inset: rgb(255 255 255 / 0.5);
@@ -135,13 +149,13 @@ body::before {
   }
 
   .neu-hover {
-    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+    transition: box-shadow var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
   }
 
   .neu-hover:hover {
     box-shadow: var(--glass-shadow-lg);
     border-color: rgb(200 169 126 / 0.7);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
   }
 
   .btn {
@@ -160,7 +174,8 @@ body::before {
     border: 1px solid var(--glass-border);
     color: var(--color-slate);
     box-shadow: 0 4px 14px rgb(15 25 20 / 0.12);
-    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease, color 0.18s ease;
+    transition: background-color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out),
+      transform var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out);
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
@@ -169,10 +184,12 @@ body::before {
   .btn:hover {
     color: var(--color-sky-deep);
     border-color: var(--color-sky);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgb(15 25 20 / 0.16);
   }
 
   .btn:active {
-    transform: translateY(1px);
+    transform: translateY(0) scale(0.975);
   }
 
   .btn:disabled {
@@ -325,6 +342,90 @@ body::before {
     margin-bottom: 1rem;
     line-height: 1.75;
   }
+
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.05;
+  }
+
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--glass-inset);
+    border-radius: 0.75rem;
+  }
+
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.35), transparent);
+    animation: lx-shimmer 1.4s ease-in-out infinite;
+  }
+
+  .reveal {
+    animation: lx-reveal var(--dur-3) var(--ease-out) both;
+  }
+
+  .toast {
+    animation: lx-toast var(--dur-3) var(--ease-spring) both;
+  }
+
+  .glass-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-sheen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(120deg, transparent 32%, rgb(255 255 255 / 0.16) 50%, transparent 68%);
+    transform: translateX(-120%);
+    animation: lx-sheen 7s var(--ease-out) infinite;
+  }
+}
+
+@keyframes lx-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes lx-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lx-toast {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lx-sheen {
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -348,6 +449,18 @@ body::before {
   .btn,
   .nav-link-accent::after {
     transition: none;
+  }
+
+  .skeleton::after,
+  .glass-sheen::before {
+    animation: none;
+  }
+
+  .reveal,
+  .toast {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
 
