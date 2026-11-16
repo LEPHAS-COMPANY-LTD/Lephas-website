@@ -1,7 +1,35 @@
-import { useId } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from './Icon.jsx'
 import { AVAILABILITY, STATUS_TONES, initials } from '../lib/format.js'
+
+export function Reveal({ children, className = '', as: Tag = 'div', ...rest }) {
+  const ref = useRef(null)
+  const [shown, setShown] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setShown(true)
+      return undefined
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -48px 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  return (
+    <Tag ref={ref} className={`${shown ? 'reveal' : 'opacity-0'} ${className}`} {...rest}>
+      {children}
+    </Tag>
+  )
+}
 
 export function Logo({ size = 44, withText = true }) {
   return (

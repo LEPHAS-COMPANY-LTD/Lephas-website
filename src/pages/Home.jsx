@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Icon from '../components/Icon.jsx'
 import { MemberCard, ProjectCard, ServiceCard } from '../components/cards.jsx'
 import ContactChannels from '../components/ContactChannels.jsx'
-import { SectionTitle } from '../components/ui.jsx'
+import { Reveal, SectionTitle } from '../components/ui.jsx'
 import { api } from '../services/api.js'
 import { useAsync, usePageMeta } from '../lib/useAsync.js'
 import { useSite } from '../context/site.js'
@@ -35,8 +35,16 @@ export default function Home() {
   const members = (team.data?.members ?? []).slice(0, 4)
   const featured = (projects.data?.projects ?? []).slice(0, 3)
 
+  const stats = [
+    counts.projects > 0 && { value: `${counts.projects}`, label: counts.projects === 1 ? 'Project delivered' : 'Projects delivered' },
+    counts.team > 0 && { value: `${counts.team}`, label: counts.team === 1 ? 'Developer ready' : 'Developers ready to hire' },
+    { value: '1 day', label: 'Typical reply time' },
+    { value: '100%', label: 'You own the code' },
+  ].filter(Boolean)
+  const statCols = { 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3', 4: 'sm:grid-cols-4' }[stats.length] || 'sm:grid-cols-4'
+
   return (
-    <div className="space-y-24 sm:space-y-28">
+    <div className="space-y-24 sm:space-y-32">
       <section className="grid items-center gap-12 pt-4 lg:grid-cols-[1.15fr_0.85fr]">
         <div>
           <span className="eyebrow">Lephas Company Ltd · Est. 2026</span>
@@ -87,27 +95,26 @@ export default function Home() {
         </div>
 
         <div className="relative mx-auto w-full max-w-sm">
-          <div className="neu-lg aspect-square p-8" style={{ borderRadius: '999px' }}>
+          <div className="glass-sheen neu-lg aspect-square p-8" style={{ borderRadius: '999px' }}>
             <div className="neu-inset flex h-full w-full items-center justify-center p-6" style={{ borderRadius: '999px' }}>
               <img src="/logo.svg" alt="Lephas Company Ltd logo: transforming the future" className="h-full w-full" />
             </div>
           </div>
-          {counts.team > 0 && (
-            <div className="neu-sm absolute -left-2 bottom-8 px-4 py-3 text-sm sm:-left-8">
-              <p className="font-bold text-slate">{counts.team} {counts.team === 1 ? 'developer' : 'developers'}</p>
-              <p className="text-xs text-muted">ready to hire</p>
-            </div>
-          )}
-          {counts.projects > 0 && (
-            <div className="neu-sm absolute -right-2 top-8 px-4 py-3 text-sm sm:-right-6">
-              <p className="font-bold text-slate">{counts.projects} {counts.projects === 1 ? 'project' : 'projects'}</p>
-              <p className="text-xs text-muted">delivered</p>
-            </div>
-          )}
         </div>
       </section>
 
-      <section aria-labelledby="services-title">
+      <section aria-label="Lephas at a glance">
+        <dl className={`neu-inset grid grid-cols-2 divide-x divide-y divide-[var(--glass-border)] overflow-hidden sm:divide-y-0 ${statCols}`}>
+          {stats.map((stat) => (
+            <div key={stat.label} className="px-6 py-7 text-center">
+              <dd className="font-display text-3xl text-slate sm:text-4xl">{stat.value}</dd>
+              <dt className="mt-1 text-sm text-muted">{stat.label}</dt>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <Reveal as="section" aria-labelledby="services-title">
         <SectionTitle eyebrow="What we build" title={<span id="services-title">Services for every stage of your business</span>}>
           From your first website to the systems that run your shop floor.
         </SectionTitle>
@@ -123,28 +130,28 @@ export default function Home() {
             See all services
           </Link>
         </div>
-      </section>
+      </Reveal>
 
-      <section aria-labelledby="how-title">
+      <Reveal as="section" aria-labelledby="how-title">
         <SectionTitle eyebrow="How it works" title={<span id="how-title">From idea to launch in four steps</span>} />
         <ol className="grid gap-7 md:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, index) => (
-            <li key={step.title} className="neu p-7">
+            <li key={step.title} className="neu neu-hover p-7">
               <div className="flex items-center justify-between">
                 <span className="icon-well">
                   <Icon name={step.icon} />
                 </span>
-                <span className="text-4xl font-bold text-silver">{String(index + 1).padStart(2, '0')}</span>
+                <span className="font-display text-4xl text-silver">{String(index + 1).padStart(2, '0')}</span>
               </div>
               <h3 className="mt-5 font-bold text-slate">{step.title}</h3>
               <p className="mt-2 text-sm text-muted">{step.text}</p>
             </li>
           ))}
         </ol>
-      </section>
+      </Reveal>
 
       {members.length > 0 && (
-        <section aria-labelledby="talent-title">
+        <Reveal as="section" aria-labelledby="talent-title">
           <SectionTitle eyebrow="Hire talent" title={<span id="talent-title">Meet the people who will build it</span>}>
             Check their skills, GitHub and past work, then hire them for your project.
           </SectionTitle>
@@ -158,11 +165,11 @@ export default function Home() {
               Browse all talent
             </Link>
           </div>
-        </section>
+        </Reveal>
       )}
 
       {featured.length > 0 && (
-        <section aria-labelledby="work-title">
+        <Reveal as="section" aria-labelledby="work-title">
           <SectionTitle eyebrow="Our work" title={<span id="work-title">Recent projects</span>} />
           <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
             {featured.map((project) => (
@@ -174,10 +181,10 @@ export default function Home() {
               View the portfolio
             </Link>
           </div>
-        </section>
+        </Reveal>
       )}
 
-      <section aria-labelledby="why-title">
+      <Reveal as="section" aria-labelledby="why-title">
         <SectionTitle eyebrow="Why Lephas" title={<span id="why-title">Built for clients who want clarity</span>} />
         <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
           {reasons.map((reason) => (
@@ -188,11 +195,11 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </section>
+      </Reveal>
 
-      <section className="neu-lg p-8 text-center sm:p-14">
+      <Reveal as="section" className="glass-sheen neu-lg p-8 text-center sm:p-14">
         <span className="eyebrow">Ready when you are</span>
-        <h2 className="mt-3 text-3xl font-bold text-slate sm:text-4xl">Let’s build something that lasts.</h2>
+        <h2 className="font-display mt-3 text-4xl text-slate sm:text-5xl">Let’s build something that lasts.</h2>
         <p className="mx-auto mt-4 max-w-xl text-muted">
           Send your idea now and get a reply within one business day. Prefer to talk? Reach us directly.
         </p>
@@ -207,7 +214,7 @@ export default function Home() {
         <div className="mx-auto mt-10 max-w-3xl text-left">
           <ContactChannels />
         </div>
-      </section>
+      </Reveal>
     </div>
   )
 }
