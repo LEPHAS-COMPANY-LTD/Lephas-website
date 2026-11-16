@@ -35,14 +35,17 @@ export default function Overview() {
       <AdminHeader title={`Hello, ${user.full_name.split(' ')[0]}`}>Here is what is happening with client requests.</AdminHeader>
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {tiles.map((tile) => (
-          <Link key={tile.label} to={tile.to} className="neu neu-hover flex items-center gap-4 p-5">
-            <span className="icon-well">
-              <Icon name={tile.icon} />
-            </span>
-            <span>
-              <span className="block text-2xl font-bold text-slate">{tile.value}</span>
-              <span className="block text-xs text-muted">{tile.label}</span>
-            </span>
+          <Link key={tile.label} to={tile.to} className="neu neu-hover flex flex-col justify-between gap-8 p-6">
+            <div className="flex items-start justify-between">
+              <span className="icon-well h-10 w-10">
+                <Icon name={tile.icon} size={18} />
+              </span>
+              <Icon name="arrow" size={16} className="text-muted" />
+            </div>
+            <div>
+              <span className="font-display block text-4xl text-slate">{tile.value}</span>
+              <span className="mt-1 block text-sm text-muted">{tile.label}</span>
+            </div>
           </Link>
         ))}
       </div>

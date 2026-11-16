@@ -6,7 +6,7 @@ export function AdminHeader({ title, children, actions }) {
   return (
     <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold text-slate sm:text-3xl">{title}</h1>
+        <h1 className="font-display text-3xl text-slate sm:text-4xl">{title}</h1>
         {children && <p className="mt-1 text-sm text-muted">{children}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-3">{actions}</div>}
@@ -17,7 +17,7 @@ export function AdminHeader({ title, children, actions }) {
 export function Toast({ message, onClose }) {
   if (!message) return null
   return (
-    <div className="neu-sm fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 px-5 py-3 text-sm font-semibold text-slate" role="status">
+    <div className="toast neu-sm fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 px-5 py-3 text-sm font-semibold text-slate" role="status">
       <Icon name="check" size={18} className="text-sky-deep" />
       {message}
       <button type="button" aria-label="Dismiss" onClick={onClose} className="text-muted hover:text-slate">
