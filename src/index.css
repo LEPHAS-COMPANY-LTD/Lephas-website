@@ -374,6 +374,24 @@ body::before {
     animation: lx-toast var(--dur-3) var(--ease-spring) both;
   }
 
+  .pop {
+    animation: lx-pop var(--dur-3) var(--ease-spring) both;
+  }
+
+  .progress-track {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--glass-inset);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--color-beige);
+    transition: width var(--dur-3) var(--ease-out);
+  }
+
   .glass-sheen {
     position: relative;
     overflow: hidden;
@@ -418,6 +436,17 @@ body::before {
   }
 }
 
+@keyframes lx-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes lx-sheen {
   0%,
   55% {
@@ -457,10 +486,15 @@ body::before {
   }
 
   .reveal,
-  .toast {
+  .toast,
+  .pop {
     animation: none;
     opacity: 1;
     transform: none;
+  }
+
+  .progress-fill {
+    transition: none;
   }
 }
 
