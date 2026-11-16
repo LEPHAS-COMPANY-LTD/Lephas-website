@@ -76,7 +76,7 @@ export default function About() {
       )}
 
       <section className="neu-lg p-8 text-center sm:p-12">
-        <h2 className="text-2xl font-bold text-slate sm:text-3xl">Work with the whole team</h2>
+        <h2 className="font-display text-3xl text-slate sm:text-4xl">Work with the whole team</h2>
         <p className="mx-auto mt-3 max-w-xl text-muted">Browse every developer and designer, or tell us about your project and we will put the right team together.</p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Link to="/talent" className="btn">

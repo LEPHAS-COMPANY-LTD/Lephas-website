@@ -33,7 +33,7 @@ export default function TalentProfile() {
       <div className="grid gap-10 lg:grid-cols-[22rem_1fr]">
         <aside className="neu h-fit p-8 text-center lg:sticky lg:top-28">
           <Avatar src={member.photo} name={member.full_name} size={168} />
-          <h1 className="mt-6 text-2xl font-bold text-slate">{member.full_name}</h1>
+          <h1 className="font-display mt-6 text-3xl text-slate sm:text-4xl">{member.full_name}</h1>
           <p className="font-medium text-sky-deep">{member.title}</p>
           {member.member_type === 'owner' && <p className="chip mt-3">Co-founder</p>}
           <div className="mt-4">

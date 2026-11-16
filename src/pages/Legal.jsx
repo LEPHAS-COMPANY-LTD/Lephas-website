@@ -9,7 +9,7 @@ function LegalLayout({ title, intro, children }) {
     <article className="mx-auto max-w-3xl">
       <header className="mb-10 text-center">
         <span className="eyebrow">Legal</span>
-        <h1 className="mt-3 text-3xl font-bold text-slate sm:text-4xl">{title}</h1>
+        <h1 className="font-display mt-3 text-4xl text-slate sm:text-5xl">{title}</h1>
         <p className="mt-3 text-sm text-muted">Last updated: {UPDATED}</p>
         {intro && <p className="mx-auto mt-5 max-w-2xl text-muted">{intro}</p>}
       </header>

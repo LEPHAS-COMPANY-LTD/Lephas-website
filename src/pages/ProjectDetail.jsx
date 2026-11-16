@@ -26,7 +26,7 @@ export default function ProjectDetail() {
       <BackLink to="/portfolio">Portfolio</BackLink>
       <header className="mb-10">
         {project.service && <span className="eyebrow">{project.service.name}</span>}
-        <h1 className="mt-2 text-3xl font-bold text-slate sm:text-4xl">{project.title}</h1>
+        <h1 className="font-display mt-2 text-4xl text-slate sm:text-5xl">{project.title}</h1>
         <p className="mt-3 max-w-3xl text-lg text-muted">{project.summary}</p>
         <div className="mt-6 flex flex-wrap gap-3">
           <ExternalLink href={project.live_url} icon="globe" className="btn btn-primary btn-sm">

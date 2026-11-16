@@ -109,7 +109,7 @@ export default function RequestStatus() {
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <span className="eyebrow">Request {request.reference}</span>
-          <h1 className="mt-2 text-2xl font-bold text-slate sm:text-3xl">{request.subject || 'Your request'}</h1>
+          <h1 className="font-display mt-2 text-3xl text-slate sm:text-4xl">{request.subject || 'Your request'}</h1>
         </div>
         <StatusBadge status={request.status} label={request.status_label} />
       </header>

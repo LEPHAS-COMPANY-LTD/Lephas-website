@@ -66,7 +66,7 @@ export default function Process() {
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <h2 className="text-xl font-bold text-slate">{stage.title}</h2>
+                <h2 className="font-display text-2xl text-slate">{stage.title}</h2>
                 <span className="chip">{stage.time}</span>
               </div>
               <p className="mt-3 text-muted">{stage.text}</p>
