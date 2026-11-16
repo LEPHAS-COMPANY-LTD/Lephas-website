@@ -40,6 +40,12 @@ export default function Talent() {
     setParams(next, { replace: true })
   }
 
+  const hasFilters = Boolean(q || skill || availability)
+  function clearAll() {
+    setSearch('')
+    setParams(new URLSearchParams(), { replace: true })
+  }
+
   return (
     <div>
       <PageHeader eyebrow="Hire talent" title="Work directly with our developers">
@@ -102,6 +108,18 @@ export default function Talent() {
             ? 'Try another skill or clear the filters.'
             : 'Our team profiles are being prepared. You can still send us your project and we will match the right people.'}
         </EmptyState>
+      )}
+      {!loading && !error && members.length > 0 && (
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <p className="text-sm font-semibold text-muted">
+            {members.length} {members.length === 1 ? 'developer' : 'developers'} {hasFilters ? 'match your filters' : 'available'}
+          </p>
+          {hasFilters && (
+            <button type="button" className="btn btn-sm" onClick={clearAll}>
+              Clear filters
+            </button>
+          )}
+        </div>
       )}
       <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
         {members.map((member) => (
