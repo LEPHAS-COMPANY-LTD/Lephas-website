@@ -23,7 +23,7 @@ export function PageHeader({ eyebrow, title, children, actions }) {
   return (
     <header className="mb-12 text-center">
       {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-      <h1 className="mt-3 text-3xl font-bold leading-tight text-slate sm:text-4xl md:text-5xl">{title}</h1>
+      <h1 className="font-display mt-3 text-4xl text-slate sm:text-5xl md:text-6xl">{title}</h1>
       {children && <div className="mx-auto mt-4 max-w-2xl text-[1rem] text-muted sm:text-lg">{children}</div>}
       {actions && <div className="mt-8 flex flex-wrap justify-center gap-4">{actions}</div>}
     </header>
@@ -34,7 +34,7 @@ export function SectionTitle({ eyebrow, title, children, align = 'center' }) {
   return (
     <div className={`mb-10 ${align === 'center' ? 'text-center' : ''}`}>
       {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-      <h2 className="mt-2 text-2xl font-bold text-slate sm:text-3xl">{title}</h2>
+      <h2 className="font-display mt-2 text-3xl text-slate sm:text-4xl">{title}</h2>
       {children && <p className={`mt-3 text-muted ${align === 'center' ? 'mx-auto max-w-2xl' : 'max-w-2xl'}`}>{children}</p>}
     </div>
   )
